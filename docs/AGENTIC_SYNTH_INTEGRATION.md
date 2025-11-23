@@ -18,6 +18,7 @@ This Bloomberg API Simulator integrates **@ruvector/agentic-synth** for AI-power
     │ Primary: @ruvector/agentic-synth │
     │ - Gemini (Recommended)      │
     │ - OpenAI                    │
+    │ - Azure OpenAI              │
     │ - Anthropic Claude          │
     │ - OpenRouter (50+ models)   │
     └─────────────────────────────┘
