@@ -95,9 +95,9 @@ private async generateNews(symbols: string[]): Promise<News> {
 Your `.env` file is properly configured:
 
 ```env
-AZURE_OPENAI_API_KEY=433ccc2dfeb84f63a8bbcc62c2e366c5
-AZURE_OPENAI_ENDPOINT=https://sitra-openai-sweden.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT=gpt-5-mini
+AZURE_OPENAI_API_KEY=xx
+AZURE_OPENAI_ENDPOINT=xx
+AZURE_OPENAI_DEPLOYMENT=xx
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
 ```
 

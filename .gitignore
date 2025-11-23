@@ -44,3 +44,7 @@ Thumbs.db
 .cache/
 .npm/
 .eslintcache
+
+# Claude Flow metrics and swarm data
+.claude-flow/
+.swarm/
