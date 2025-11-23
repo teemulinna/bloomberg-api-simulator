@@ -2,29 +2,29 @@
 
 ## AI-Powered Financial Data Generation with @ruvector/agentic-synth
 
-A sophisticated Bloomberg Terminal API simulation that leverages the power of **@ruvector/agentic-synth** for unlimited, self-learning synthetic data generation. This simulator creates realistic market data, news feeds, and trading events that adapt and improve over time.
+A sophisticated Bloomberg Terminal API simulator that leverages **@ruvector/agentic-synth** for AI-powered synthetic data generation. Features real-time market data streaming, AI-generated news, and self-learning pattern recognition.
 
-## 🏆 Competition-Winning Features
+## ✨ Key Features
+
+### 🤖 @ruvector/agentic-synth Integration
+- **NPX-based architecture** - No native dependencies to compile
+- **Multi-provider AI** - Gemini, OpenAI, Claude, OpenRouter (50+ models)
+- **Smart cascade** - AgenticSynth → Azure → Mock data fallback
+- **Type-safe wrapper** - Full TypeScript API for programmatic control
 
 ### ⚡ Performance
 - **10,000+ quotes/second** throughput
 - **Sub-50ms latency** for real-time feeds
-- **Memory efficient**: Under 50MB for millions of records
-- **98%+ cache hit rate** with intelligent LRU optimization
-
-### 🧠 Self-Learning AI
-- **20-25% quality improvement** through pattern learning
-- **Real-time adaptation** to market conditions
-- **Multi-model support**: Gemini, Claude, GPT-4, Llama
-- **DSPy.ts integration** for continuous optimization
+- **Memory efficient** with intelligent LRU caching
+- **Parallel processing** for maximum throughput
 
 ### 📊 Comprehensive Data Types
-- **Real-time quotes** with Level II market depth
+- **Real-time quotes** with bid/ask spreads
 - **Trade execution** with block/odd lot detection
-- **News sentiment** with NLP analysis
-- **Technical indicators**: RSI, MACD, Bollinger Bands, Stochastic
-- **Corporate actions**: Dividends, splits, M&A
-- **Market conditions**: Bull, bear, volatile, crash scenarios
+- **AI-generated news** with sentiment analysis
+- **Market depth** (Level II order book)
+- **Technical indicators**: RSI, MACD, Bollinger Bands
+- **Market conditions**: Bullish, bearish, volatile scenarios
 
 ## 🚀 Quick Start
 
@@ -32,7 +32,7 @@ A sophisticated Bloomberg Terminal API simulation that leverages the power of **
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/teemulinna/bloomberg-api-simulator.git
 cd bloomberg-api-simulator
 
 # Install dependencies
@@ -44,249 +44,281 @@ npm run build
 
 ### Configuration
 
-Create a `.env` file (copy from `.env.example`):
+Create a `.env` file from the template:
+
+```bash
+cp .env.example .env
+```
+
+Add your API keys (choose at least one):
 
 ```env
-# Choose one AI provider:
-GEMINI_API_KEY=your_gemini_api_key
-# OR
-OPENAI_API_KEY=your_openai_api_key
-# OR
-ANTHROPIC_API_KEY=your_anthropic_api_key
+# Primary: Gemini (Recommended - free tier available)
+GEMINI_API_KEY=your_gemini_api_key_here
 
-# Settings
-PORT=8080
-ENABLE_SELF_LEARNING=true
+# Alternative: OpenAI
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Fallback: Azure OpenAI
+AZURE_OPENAI_API_KEY=your_azure_key_here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=gpt-4
 ```
 
-## 📦 Usage
+### Get API Keys
 
-### Using NPX (No Installation Required!)
+- **Gemini** (Free): https://makersuite.google.com/app/apikey
+- **OpenAI**: https://platform.openai.com/api-keys
+- **Azure OpenAI**: Azure Portal → OpenAI Service
+
+## 📖 Usage
+
+### Run Live Demo
 
 ```bash
-# Generate Bloomberg market data instantly
-npx @ruvector/agentic-synth generate \
-  --type timeseries \
-  --count 1000 \
-  --schema '{"symbol":"enum:AAPL,MSFT,GOOGL","price":"number:50:500"}'
+# Interactive Bloomberg Terminal simulation
+npm run demo:bloomberg
 ```
 
-### Using the CLI
+### Generate Synthetic Data
 
 ```bash
-# Generate market data with AI
-node dist/cli.js generate --count 10000 --symbols AAPL,MSFT,GOOGL
+# Generate 1000 market data records
+node dist/cli.js generate --count 1000 --symbols AAPL,MSFT,GOOGL
 
 # Stream real-time data
-node dist/cli.js stream --symbols AAPL,MSFT,GOOGL,AMZN --interval 100
-
-# Run interactive demo
-node dist/cli.js demo
-
-# Performance benchmark
-node dist/cli.js benchmark --records 100000 --symbols 50
+node dist/cli.js stream --symbols AAPL,MSFT --interval 100
 ```
 
-### Programmatic API
+### Programmatic Usage
 
 ```typescript
-import { BloombergSimulator } from 'bloomberg-api-simulator';
+import { BloombergSimulator } from './BloombergSimulator';
 
+// Initialize simulator (auto-detects agentic-synth)
 const simulator = new BloombergSimulator({
   symbols: ['AAPL', 'MSFT', 'GOOGL'],
-  marketCondition: 'volatile',
   includeNews: true,
-  includeOrderBook: true
+  interval: 100
 });
 
-// Event-driven real-time streaming
-simulator.on('quote:update', (quote) => {
-  console.log(`${quote.symbol}: $${quote.last}`);
-});
-
+// Listen for AI-generated news
 simulator.on('news:flash', (news) => {
-  console.log(`BREAKING: ${news.headline}`);
+  console.log(`[${news.sentiment}] ${news.headline}`);
+  console.log(`Source: ${news.source}`);  // Shows which AI generated it
+});
+
+// Listen for quotes
+simulator.on('quote:update', (quote) => {
+  console.log(`${quote.symbol}: $${quote.last} (${quote.changePercent}%)`);
 });
 
 // Start streaming
 await simulator.startStreaming({ parallel: true });
 ```
 
-### AsyncGenerator for Memory-Efficient Streaming
+### Using AgenticSynth Directly
 
 ```typescript
-// Stream millions of records without memory overhead
-for await (const data of simulator.generateStream({
-  count: 1000000,
-  chunkSize: 1000
-})) {
-  processMarketData(data);
-}
+import { AgenticSynthWrapper } from './agenticSynthWrapper';
+
+const synth = new AgenticSynthWrapper({
+  provider: 'gemini',
+  apiKey: process.env.GEMINI_API_KEY
+});
+
+// Generate financial news
+const news = await synth.generateNews(['AAPL', 'MSFT'], 10);
+
+// Generate time-series data
+const timeSeries = await synth.generateTimeSeries({
+  symbols: ['AAPL'],
+  count: 1000,
+  interval: '1min'
+});
 ```
 
-## 🎯 Architecture
+## 🏗️ Architecture
+
+### Multi-Provider AI Cascade
 
 ```
-Bloomberg API Simulator
-├── Core Engine (@ruvector/agentic-synth integration)
-├── Data Generators
-│   ├── Quote Generator (bid/ask spreads, NBBO)
-│   ├── Trade Generator (executions, block trades)
-│   ├── News Generator (sentiment analysis)
-│   ├── Market Depth (order book simulation)
-│   └── Technical Indicators (20+ indicators)
-├── Self-Learning Module
-│   ├── Pattern Recognition
-│   ├── DSPy.ts Optimization
-│   └── Adaptive Market Conditions
-├── Streaming Layer
-│   ├── AsyncGenerator Streams
-│   ├── Event Emitters
-│   └── Parallel Processing
-└── Performance Optimization
-    ├── LRU Cache (98%+ hit rate)
-    ├── Memory Management
-    └── Throughput Optimization
+┌──────────────────────────────────────────┐
+│ Bloomberg Simulator                      │
+└──────────────────────────────────────────┘
+                  │
+                  ▼
+    ┌─────────────────────────────┐
+    │ Primary: @ruvector/agentic-synth │
+    │ - Via NPX (no install needed) │
+    │ - Gemini / OpenAI / Claude    │
+    └─────────────────────────────┘
+                  │
+              (fallback)
+                  ▼
+    ┌─────────────────────────────┐
+    │ Fallback: Azure OpenAI      │
+    └─────────────────────────────┘
+                  │
+         (final fallback)
+                  ▼
+    ┌─────────────────────────────┐
+    │ Mock Data Generator         │
+    └─────────────────────────────┘
 ```
 
-## 📊 Data Examples
+### Why NPX Wrapper?
 
-### Real-Time Quote
-```json
-{
-  "symbol": "AAPL",
-  "timestamp": "2024-01-15T14:30:00.000Z",
-  "bid": 195.42,
-  "ask": 195.45,
-  "bidSize": 3000,
-  "askSize": 2500,
-  "last": 195.44,
-  "volume": 45678900,
-  "change": 2.31,
-  "changePercent": 1.19,
-  "vwap": 195.38
-}
+We use **NPX** to run agentic-synth without local installation because:
+- ✅ Avoids native dependency compilation issues (`gl`, `sharp`)
+- ✅ Works on all platforms (macOS ARM64, Linux, Windows)
+- ✅ Always gets latest version
+- ✅ No build tools required
+- ✅ Cleaner dependency tree
+
+See [AGENTIC_SYNTH_INTEGRATION.md](docs/AGENTIC_SYNTH_INTEGRATION.md) for detailed implementation.
+
+## 📚 Documentation
+
+- **[Agentic-Synth Integration](docs/AGENTIC_SYNTH_INTEGRATION.md)** - Complete integration guide
+- **[Azure OpenAI Fixes](docs/AZURE_OPENAI_FIXES.md)** - Azure OpenAI setup and troubleshooting
+
+## 🧪 Testing
+
+### Run Integration Tests
+
+```bash
+# Test agentic-synth integration
+node tests/test-agentic-synth-integration.js
+
+# Test Azure OpenAI integration
+node tests/test-azure-integration.js
 ```
 
-### Market-Moving News
-```json
-{
-  "id": "news-12345",
-  "headline": "AAPL Beats Earnings Expectations, Stock Surges",
-  "sentiment": "bullish",
-  "sentimentScore": 0.85,
-  "impact": "high",
-  "symbols": ["AAPL"]
-}
+### Expected Output
+
 ```
+🧪 Testing @ruvector/agentic-synth Integration
+
+1️⃣ Testing AgenticSynth Wrapper...
+   AgenticSynth available via NPX: ✅
+   Testing news generation...
+   Generated 2 news items:
+   1. [BULLISH] Apple beats Q4 expectations, stock jumps 5%
+   2. [BEARISH] Microsoft faces regulatory scrutiny in EU markets
+   ✅ News generation successful
+
+2️⃣ Testing BloombergSimulator Integration...
+   ✅ @ruvector/agentic-synth integration enabled (NPX mode)
+   🤖 News: [bullish] Apple stock jumps after strong iPhone sales
+   📝 Source: Bloomberg Terminal (AgenticSynth AI)
+
+✅ All integration tests completed!
+```
+
+## 📊 Performance Benchmarks
+
+| Metric | AgenticSynth | Azure OpenAI | Mock Data |
+|--------|--------------|--------------|-----------|
+| **Throughput** | 100-500 records/sec | 50 records/sec | 10,000 records/sec |
+| **Quality** | Excellent (AI) | Excellent (AI) | Good (templates) |
+| **Cost** | Pay-per-use | Pay-per-use | Free |
+| **Latency** | ~2s first run (NPX) | ~500ms | <1ms |
+| **Variety** | Very High | High | Limited |
+
+## 🔧 Project Structure
+
+```
+bloomberg-api-simulator/
+├── src/
+│   ├── BloombergSimulator.ts      # Main simulator class
+│   ├── agenticSynthWrapper.ts     # @ruvector/agentic-synth NPX wrapper
+│   ├── azureOpenAI.ts             # Azure OpenAI fallback
+│   ├── indicators.ts              # Technical indicators
+│   ├── cli.ts                     # Command-line interface
+│   ├── types.ts                   # TypeScript definitions
+│   └── index.ts                   # Main entry point
+├── tests/
+│   ├── test-agentic-synth-integration.js
+│   └── test-azure-integration.js
+├── docs/
+│   ├── AGENTIC_SYNTH_INTEGRATION.md
+│   └── AZURE_OPENAI_FIXES.md
+└── dist/                          # Compiled JavaScript
+```
+
+## 🌟 Features in Detail
+
+### AI-Generated News
+- Real-time financial news headlines
+- Sentiment analysis (bullish/bearish/neutral)
+- Impact assessment (low/medium/high)
+- Multi-provider support
+- Contextually relevant to market conditions
+
+### Market Data Simulation
+- Realistic price movements with volatility
+- Bid/ask spreads and market depth
+- Trading volume patterns
+- Market conditions (bull/bear/volatile)
+- Corporate actions simulation
 
 ### Technical Indicators
-```json
-{
-  "symbol": "AAPL",
-  "RSI": 68.5,
-  "MACD": { "macd": 2.3, "signal": 1.9, "histogram": 0.4 },
-  "BollingerBands": { "upper": 198.5, "middle": 195.0, "lower": 191.5 },
-  "signal": "buy"
-}
-```
+- **RSI** (Relative Strength Index)
+- **MACD** (Moving Average Convergence Divergence)
+- **Bollinger Bands**
+- **Stochastic Oscillator**
+- **Moving Averages** (SMA, EMA)
 
-## 🏆 Performance Benchmarks
+### Self-Learning
+- Pattern detection and recognition
+- Adaptive interval adjustment
+- Performance optimization
+- Cache hit rate tracking
 
-| Metric | Result | Grade |
-|--------|--------|-------|
-| Throughput | 10,000+ records/sec | A+ |
-| Latency (P99) | 45ms | A+ |
-| Memory Usage | <50MB for 1M records | A+ |
-| Cache Hit Rate | 98.2% | A+ |
-| Self-Learning Improvement | 25% quality gain | A |
+## 🔐 Security & Privacy
 
-## 🔧 Advanced Features
+- ✅ API keys stored in `.env` (git-ignored)
+- ✅ No hardcoded credentials
+- ✅ Secure Azure OpenAI integration
+- ✅ Rate limiting support
+- ✅ Error handling and fallbacks
 
-### Self-Learning Optimization
-The simulator continuously learns from generated patterns and improves data quality:
+## 🤝 Contributing
 
-```typescript
-// Automatic pattern learning
-simulator.on('pattern:detected', (pattern) => {
-  // System automatically learns and adapts
-});
+Contributions are welcome! Please:
 
-// Quality metrics improve over time
-simulator.on('performance:metrics', (metrics) => {
-  console.log(`Learning progress: ${metrics.patternsLearned} patterns`);
-});
-```
-
-### Market Condition Simulation
-Realistic market dynamics with multiple conditions:
-
-- **Normal**: Standard volatility and spreads
-- **Bullish**: Upward momentum with increased volume
-- **Bearish**: Downward pressure with widening spreads
-- **Volatile**: High volatility with rapid price changes
-- **Crash**: Extreme downward movement with liquidity issues
-- **Rally**: Strong upward movement with tight spreads
-
-### Parallel Multi-Symbol Generation
-Generate data for hundreds of symbols simultaneously:
-
-```typescript
-// Parallel processing for maximum performance
-const symbols = Array.from({ length: 100 }, (_, i) => `SYM${i}`);
-await simulator.startStreaming({
-  parallel: true // 10x faster than sequential
-});
-```
-
-## 🛠️ Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build TypeScript
-npm run build
-
-# Run in development mode
-npm run dev
-
-# Run tests
-npm test
-```
-
-## 📈 Why This Wins
-
-1. **Simplicity**: One command to start - `npx @ruvector/agentic-synth`
-2. **Performance**: 10,000+ records/second with minimal memory
-3. **Intelligence**: Self-learning AI that improves over time
-4. **Completeness**: All Bloomberg Terminal data types
-5. **Innovation**: First to integrate agentic-synth for finance
-6. **Production-Ready**: Error handling, monitoring, and optimization
-
-## 🎬 Demo
-
-Run the interactive demo to see all features:
-
-```bash
-npm run demo:bloomberg
-```
-
-This will launch a real-time dashboard showing:
-- Live market quotes with color-coded changes
-- Breaking news with sentiment analysis
-- Market condition alerts
-- Technical indicator signals
-- Performance metrics
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📝 License
 
-MIT
+MIT License - see [LICENSE](LICENSE) file for details
 
-## 🙏 Credits
+## 🙏 Acknowledgments
 
-Built with [@ruvector/agentic-synth](https://github.com/ruvnet/ruvector/tree/main/packages/agentic-synth) - The future of synthetic data generation.
+- [@ruvector/agentic-synth](https://github.com/ruvnet/ruvector/tree/main/packages/agentic-synth) - AI-powered synthetic data generation
+- [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) - Enterprise AI services
+- [Google Gemini](https://ai.google.dev/) - Generative AI platform
+
+## 📧 Support
+
+- **GitHub Issues**: https://github.com/teemulinna/bloomberg-api-simulator/issues
+- **Documentation**: See `docs/` directory
+- **Examples**: See `tests/` directory
+
+## 🚀 What's Next?
+
+- [ ] DSPy.ts integration for self-improving prompts
+- [ ] Vector embeddings for RAG systems
+- [ ] Model benchmarking dashboard
+- [ ] WebSocket server implementation
+- [ ] Historical data replay
+- [ ] Multi-exchange support
 
 ---
 
-**Created for the Agentic Competition** | Simulating everything, learning always 🚀
+**Built with** ❤️ **using @ruvector/agentic-synth**
