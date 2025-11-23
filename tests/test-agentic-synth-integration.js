@@ -63,15 +63,22 @@ async function testBloombergSimulatorIntegration() {
   let hasAgenticSynth = false;
   let hasAzureAI = false;
   let newsReceived = false;
+  let newsSource = '';
 
   simulator.on('log', (msg) => {
     console.log(`   ${msg}`);
     if (msg.includes('agentic-synth')) hasAgenticSynth = true;
-    if (msg.includes('Azure OpenAI')) hasAzureAI = true;
+    if (msg.includes('Azure OpenAI') || msg.includes('Azure AI')) hasAzureAI = true;
   });
 
   simulator.on('news:flash', (news) => {
     newsReceived = true;
+    newsSource = news.source;
+
+    // Detect which provider was actually used from the news source
+    if (news.source.includes('AgenticSynth')) hasAgenticSynth = true;
+    if (news.source.includes('Azure')) hasAzureAI = true;
+
     const sourceIcon = news.source.includes('AgenticSynth') ? '🤖' :
                        news.source.includes('Azure') ? '☁️' : '📝';
     console.log(`   ${sourceIcon} News: [${news.sentiment}] ${news.headline}`);
@@ -90,14 +97,17 @@ async function testBloombergSimulatorIntegration() {
         console.log('   ⏱️  No news generated in test period');
       }
       resolve();
-    }, 8000); // 8 seconds
+    }, 15000); // 15 seconds - increased to catch news event
   });
 
   // Summary
   console.log('\n   📊 Integration Summary:');
-  console.log(`   - AgenticSynth Enabled: ${hasAgenticSynth ? '✅' : '❌'}`);
-  console.log(`   - Azure OpenAI Enabled: ${hasAzureAI ? '✅' : '❌'}`);
+  console.log(`   - AgenticSynth Used: ${hasAgenticSynth ? '✅' : '❌'}`);
+  console.log(`   - Azure OpenAI Used: ${hasAzureAI ? '✅' : '❌'}`);
   console.log(`   - News Generated: ${newsReceived ? '✅' : '⏱️  (low probability event)'}`);
+  if (newsReceived && newsSource) {
+    console.log(`   - Final Provider: ${newsSource}`);
+  }
 }
 
 async function testArchitecturePattern() {
