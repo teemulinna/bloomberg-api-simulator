@@ -42,21 +42,20 @@
 │ - Market Dynamics                   │
 └─────────────────────────────────────┘
                 │
-                ▼
-┌─────────────────────────────────────┐
-│ AgenticSynthWrapper (Our Code)      │
-│ - NPX executor                      │
-│ - TypeScript API                    │
-│ - Multi-provider support            │
-└─────────────────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────┐
-│ @ruvector/agentic-synth (via NPX)   │
-│ - AI data generation                │
-│ - 50+ model support                 │
-│ - DSPy.ts optimization              │
-└─────────────────────────────────────┘
+          ┌─────┴─────┐
+          ▼           ▼
+    ┌─────────┐  ┌────────────────┐
+    │ Azure   │  │ AgenticSynth   │
+    │ OpenAI  │  │ Wrapper        │
+    │(Primary)│  │ (Secondary)    │
+    └─────────┘  └────────────────┘
+                      │
+                      ▼
+            ┌─────────────────────┐
+            │ @ruvector/          │
+            │ agentic-synth       │
+            │ (via NPX)           │
+            └─────────────────────┘
 ```
 
 ### Why NPX Instead of npm install?

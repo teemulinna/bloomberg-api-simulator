@@ -113,24 +113,28 @@ async function testBloombergSimulatorIntegration() {
 async function testArchitecturePattern() {
   console.log('\n3️⃣ Testing Architecture Pattern...');
   console.log('   Verifying multi-provider cascade:');
-  console.log('   1. Primary: @ruvector/agentic-synth (Gemini/OpenAI)');
-  console.log('   2. Fallback: Azure OpenAI');
-  console.log('   3. Final Fallback: Mock Data');
+  console.log('   1. Primary: Azure OpenAI');
+  console.log('   2. Secondary: @ruvector/agentic-synth (Gemini)');
+  console.log('   3. Tertiary: @ruvector/agentic-synth (Anthropic)');
+  console.log('   4. Final Fallback: Mock Data');
 
+  const hasAzure = !!process.env.AZURE_OPENAI_API_KEY;
   const hasGemini = !!process.env.GEMINI_API_KEY;
   const hasOpenAI = !!process.env.OPENAI_API_KEY;
-  const hasAzure = !!process.env.AZURE_OPENAI_API_KEY;
+  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
 
   console.log('\n   📊 Provider Availability:');
-  console.log(`   - Gemini (Primary): ${hasGemini ? '✅' : '❌'}`);
-  console.log(`   - OpenAI (Primary): ${hasOpenAI ? '✅' : '❌'}`);
-  console.log(`   - Azure (Fallback): ${hasAzure ? '✅' : '❌'}`);
+  console.log(`   - Azure OpenAI (Primary): ${hasAzure ? '✅' : '❌'}`);
+  console.log(`   - Gemini (Secondary): ${hasGemini ? '✅' : '❌'}`);
+  console.log(`   - OpenAI (via AgenticSynth): ${hasOpenAI ? '✅' : '❌'}`);
+  console.log(`   - Anthropic (Tertiary): ${hasAnthropic ? '✅' : '❌'}`);
   console.log(`   - Mock (Always available): ✅`);
 
-  const primaryAvailable = hasGemini || hasOpenAI;
+  const secondaryAvailable = hasGemini || hasOpenAI || hasAnthropic;
   console.log('\n   ✅ Architecture: ' + (
-    primaryAvailable ? 'AgenticSynth → Azure → Mock' :
+    hasAzure && secondaryAvailable ? 'Azure (Primary) → AgenticSynth (Secondary) → Mock' :
     hasAzure ? 'Azure → Mock' :
+    secondaryAvailable ? 'AgenticSynth → Mock' :
     'Mock only'
   ));
 }

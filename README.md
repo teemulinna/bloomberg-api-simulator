@@ -53,16 +53,16 @@ cp .env.example .env
 Add your API keys (choose at least one):
 
 ```env
-# Primary: Gemini (Recommended - free tier available)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Alternative: OpenAI
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Fallback: Azure OpenAI
+# Primary: Azure OpenAI (Enterprise-grade)
 AZURE_OPENAI_API_KEY=your_azure_key_here
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_OPENAI_DEPLOYMENT=gpt-4
+
+# Secondary: Gemini (Free tier available)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Tertiary: Anthropic Claude
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
 ### Get API Keys
@@ -140,6 +140,15 @@ const timeSeries = await synth.generateTimeSeries({
 
 ## 🏗️ Architecture
 
+### Provider Priority
+
+**The simulator uses Azure OpenAI as the primary AI provider**, with agentic-synth as fallback:
+
+1. **Azure OpenAI** (Primary) - Enterprise-grade, configured via Azure
+2. **Gemini** (Secondary) - Via @ruvector/agentic-synth NPX wrapper
+3. **Anthropic Claude** (Tertiary) - Via @ruvector/agentic-synth NPX wrapper
+4. **Mock Data** (Always available) - Deterministic fallback
+
 ### Multi-Provider AI Cascade
 
 ```
@@ -149,15 +158,25 @@ const timeSeries = await synth.generateTimeSeries({
                   │
                   ▼
     ┌─────────────────────────────┐
-    │ Primary: @ruvector/agentic-synth │
-    │ - Via NPX (no install needed) │
-    │ - Gemini / OpenAI / Claude    │
+    │ PRIMARY: Azure OpenAI       │
+    │ - Direct integration        │
+    │ - Enterprise-grade          │
     └─────────────────────────────┘
                   │
               (fallback)
                   ▼
     ┌─────────────────────────────┐
-    │ Fallback: Azure OpenAI      │
+    │ SECONDARY: agentic-synth    │
+    │ - Gemini (preferred)        │
+    │ - Via NPX                   │
+    └─────────────────────────────┘
+                  │
+              (fallback)
+                  ▼
+    ┌─────────────────────────────┐
+    │ TERTIARY: agentic-synth     │
+    │ - Anthropic Claude          │
+    │ - Via NPX                   │
     └─────────────────────────────┘
                   │
          (final fallback)

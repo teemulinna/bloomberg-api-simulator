@@ -1,37 +1,40 @@
-# Azure OpenAI Fallback Integration
+# Azure OpenAI Primary Provider Integration
 
 ## Overview
 
-The Bloomberg API Simulator uses a **3-tier provider cascade** for AI-powered news generation:
+The Bloomberg API Simulator uses a **4-tier provider cascade** for AI-powered news generation:
 
 ```
-1. Primary: @ruvector/agentic-synth (via NPX)
-   ├─ Tries: Gemini → Anthropic → OpenRouter
-   └─ Falls back to #2 if all fail
+1. Primary: Azure OpenAI (direct integration)
+   └─ Falls back to #2 if unavailable
 
-2. Fallback: Azure OpenAI (direct integration)
+2. Secondary: @ruvector/agentic-synth with Gemini (via NPX)
    └─ Falls back to #3 if unavailable
 
-3. Final Fallback: Mock Data Generator
+3. Tertiary: @ruvector/agentic-synth with Anthropic (via NPX)
+   └─ Falls back to #4 if all fail
+
+4. Final Fallback: Mock Data Generator
    └─ Always available
 ```
 
 ## ✅ Current Status
 
-Azure OpenAI is **fully integrated and working** as the fallback provider.
+Azure OpenAI is **fully integrated and working** as the **primary** provider.
 
 ### Test Results
 
 ```bash
 $ node tests/test-agentic-synth-integration.js
 
-☁️ News: [bullish] Apple Reports Stronger-Than-Expected iPhone 15 Sales...
+☁️ News: [bullish] Alphabet shares jump after Q3 results beat estimates...
 📝 Source: Bloomberg Terminal (Azure AI)
 
 📊 Integration Summary:
-- AgenticSynth Used: ❌ (no API key configured)
-- Azure OpenAI Used: ✅
+- AgenticSynth Used: ❌ (secondary - only used if Azure fails)
+- Azure OpenAI Used: ✅ (primary provider)
 - News Generated: ✅
+- Final Provider: Bloomberg Terminal (Azure AI)
 ```
 
 ## Why Azure OpenAI Instead of Native agentic-synth Support?
