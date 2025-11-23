@@ -8,6 +8,8 @@
 
 import { spawn } from 'child_process';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 
 export interface AgenticSynthConfig {
   provider?: 'gemini' | 'openai' | 'anthropic' | 'openrouter';
@@ -126,18 +128,26 @@ export class AgenticSynthWrapper {
     context?: string;
   }): Promise<any[]> {
     return new Promise((resolve, reject) => {
+      // Create temporary schema file
+      const tempDir = os.tmpdir();
+      const schemaFile = path.join(tempDir, `agentic-synth-schema-${Date.now()}.json`);
+
+      try {
+        fs.writeFileSync(schemaFile, JSON.stringify(options.schema, null, 2));
+      } catch (error) {
+        reject(new Error(`Failed to write schema file: ${error}`));
+        return;
+      }
+
+      // Build command based on actual CLI syntax
       const args = [
         '@ruvector/agentic-synth',
         'generate',
-        '--type', options.type,
+        options.type,
+        '--schema', schemaFile,
         '--count', options.count.toString(),
-        '--schema', JSON.stringify(options.schema),
-        '--format', 'json'
+        '--output', '-' // Output to stdout
       ];
-
-      if (options.context) {
-        args.push('--context', options.context);
-      }
 
       if (this.config.provider) {
         args.push('--provider', this.config.provider);
@@ -160,12 +170,19 @@ export class AgenticSynthWrapper {
 
       const child = spawn('npx', args, {
         env,
-        stdio: ['pipe', 'pipe', 'pipe'],
-        shell: true
+        stdio: ['pipe', 'pipe', 'pipe']
       });
 
       let output = '';
       let errorOutput = '';
+      let timeoutId: NodeJS.Timeout;
+
+      // Add 30 second timeout
+      timeoutId = setTimeout(() => {
+        child.kill('SIGTERM');
+        fs.unlinkSync(schemaFile);
+        reject(new Error('AgenticSynth execution timeout (30s)'));
+      }, 30000);
 
       child.stdout.on('data', (data) => {
         output += data.toString();
@@ -176,8 +193,19 @@ export class AgenticSynthWrapper {
       });
 
       child.on('close', (code) => {
+        clearTimeout(timeoutId);
+
+        // Clean up temp file
+        try {
+          if (fs.existsSync(schemaFile)) {
+            fs.unlinkSync(schemaFile);
+          }
+        } catch (cleanupError) {
+          console.warn('Failed to cleanup temp file:', cleanupError);
+        }
+
         if (code !== 0) {
-          reject(new Error(`AgenticSynth failed: ${errorOutput}`));
+          reject(new Error(`AgenticSynth failed (exit code ${code}): ${errorOutput}`));
           return;
         }
 
@@ -187,9 +215,10 @@ export class AgenticSynthWrapper {
           const results: any[] = [];
 
           for (const line of lines) {
-            if (line.startsWith('{') || line.startsWith('[')) {
+            const trimmed = line.trim();
+            if (trimmed && (trimmed.startsWith('{') || trimmed.startsWith('['))) {
               try {
-                const parsed = JSON.parse(line);
+                const parsed = JSON.parse(trimmed);
                 if (Array.isArray(parsed)) {
                   results.push(...parsed);
                 } else {
@@ -208,6 +237,14 @@ export class AgenticSynthWrapper {
       });
 
       child.on('error', (error) => {
+        clearTimeout(timeoutId);
+        try {
+          if (fs.existsSync(schemaFile)) {
+            fs.unlinkSync(schemaFile);
+          }
+        } catch (cleanupError) {
+          // Ignore cleanup errors
+        }
         reject(new Error(`Failed to spawn AgenticSynth: ${error.message}`));
       });
     });

@@ -185,18 +185,33 @@ See [AGENTIC_SYNTH_INTEGRATION.md](docs/AGENTIC_SYNTH_INTEGRATION.md) for detail
 
 ## 🧪 Testing
 
-### Run Integration Tests
+### Quick CLI Test (No API Key Required)
 
 ```bash
-# Test agentic-synth integration
+# Verify NPX wrapper is working
+node tests/test-simple-agentic-synth.js
+```
+
+**Expected Output:**
+```
+✅ NPX Availability: ✅
+✅ Help Command: ✅
+❌ Basic Generation: ❌ (requires API key)
+```
+
+This verifies the integration is working - generation requires a valid API key.
+
+### Full Integration Tests (Requires API Key)
+
+```bash
+# Test agentic-synth with AI generation
 node tests/test-agentic-synth-integration.js
 
 # Test Azure OpenAI integration
 node tests/test-azure-integration.js
 ```
 
-### Expected Output
-
+**Expected Output (with valid API key):**
 ```
 🧪 Testing @ruvector/agentic-synth Integration
 
@@ -215,6 +230,8 @@ node tests/test-azure-integration.js
 
 ✅ All integration tests completed!
 ```
+
+**Without API Key:** Tests will show CLI is working but generation fails with "401 Unauthorized" - this is expected.
 
 ## 📊 Performance Benchmarks
 

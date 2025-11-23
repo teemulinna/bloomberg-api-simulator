@@ -151,13 +151,16 @@ Key Files:
 Show the integration working:
 
 ```bash
-# 1. Test the integration
+# 1. Quick CLI test (verifies NPX wrapper is working)
+node tests/test-simple-agentic-synth.js
+
+# 2. Full integration test (requires API key in .env)
 node tests/test-agentic-synth-integration.js
 
-# 2. Run live demo
+# 3. Run live demo with AI news (requires API key)
 npm run demo:bloomberg
 
-# 3. Generate data programmatically
+# 4. Generate data programmatically
 node -e "
 const { AgenticSynthWrapper } = require('./dist/agenticSynthWrapper');
 const synth = new AgenticSynthWrapper({ provider: 'gemini' });
@@ -166,6 +169,8 @@ synth.generateNews(['AAPL'], 3).then(news =>
 );
 "
 ```
+
+**Note:** The CLI integration works correctly. If generation fails with "401 Unauthorized", add a valid API key (Gemini, OpenAI, or Anthropic) to your `.env` file.
 
 ## 💡 What You Can Say
 
